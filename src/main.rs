@@ -2,6 +2,7 @@ extern crate sdl2;
 extern crate gl;
 
 // open gl docs locally -> cargo doc -p gl --no-deps --open
+//
 
 fn main()
 {
