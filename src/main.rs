@@ -44,7 +44,73 @@ fn main()
 		&[vert_shader, frag_shader]
 	).unwrap();
 
-	shader_program.set_used();
+	let vertices: Vec<f32> = vec![
+		// positions		// colors
+		0.5, -0.5, 0.0,		1.0, 0.0, 0.0,	// bottom right
+		-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,	// bottom left
+		0.0, 0.5, 0.0,		0.0, 0.0, 1.0	// top
+	];
+
+	// VBO - vertex buffer object, which lets us upload vertex data to the gpu (position, normal vector, color)
+	let mut vbo: gl::types::GLuint = 0;
+	// first argument specifies how many VBOs we want, the second is an array that will be overwritten with the VBOs created
+	// rust references act as pointers here, so passing &vbo works as long as we only ask for 1 VBO
+	// (yes, the 'unsafe' is here for that reason)
+	unsafe
+	{
+		gl::GenBuffers(1, &mut vbo);
+	}
+
+	unsafe
+	{
+		gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+		gl::BufferData(
+			gl::ARRAY_BUFFER,
+			(vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr, // size of data in bytes
+			vertices.as_ptr() as *const gl::types::GLvoid, // pointer to data
+			gl::STATIC_DRAW
+		);
+		gl::BindBuffer(gl::ARRAY_BUFFER, 0); //unbind the buffer
+	}
+
+	// create a Vertex Array Object (VAO) which describes how to interpret data in our 'vertices' Vec
+	let mut vao: gl::types::GLuint = 0;
+	unsafe
+	{
+		gl::GenVertexArrays(1, &mut vao);
+	}
+	// Bind the VAO
+	unsafe
+	{
+		gl::BindVertexArray(vao);
+		// We bind the VBO as well, to configure the realtion between the two
+		// Rebinding it might be wasteful, but its here to make it clear we actually need the VBO now
+		gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+		// Specify the data layout for attribute 0
+		gl::EnableVertexAttribArray(0);
+		gl::VertexAttribPointer(
+			0, // index of the generic vertex attribute
+			3, // Number of components per generic vertex attribute
+			gl::FLOAT,
+			gl::FALSE,
+			(6 * std::mem::size_of::<f32>()) as gl::types::GLint, // offset between consecutive attributes
+			std::ptr::null() // offset of the first component
+		);
+		// Specify the data layout for attribute 1
+		gl::EnableVertexAttribArray(1);
+		gl::VertexAttribPointer(
+			1, // index of the generic vertex attribute
+			3, // Number of components per generic vertex attribute
+			gl::FLOAT,
+			gl::FALSE,
+			(6 * std::mem::size_of::<f32>()) as gl::types::GLint, // offset between consecutive attributes
+			(3 * std::mem::size_of::<f32>()) as *const gl::types::GLvoid // offset of the first component
+		);
+
+		// Unbind VAO and VBO
+		gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+		gl::BindVertexArray(0);
+	}
 
     'main: loop
     {
@@ -62,8 +128,20 @@ fn main()
         {
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
+
+        // render traingle
+		shader_program.set_used();
+		unsafe
+		{
+			gl::BindVertexArray(vao);
+			gl::DrawArrays(
+				gl::TRIANGLES,
+				0,
+				3
+			);
+		}
+
         window.gl_swap_window();
-        // render contents
     }
 }
 
