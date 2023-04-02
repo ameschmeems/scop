@@ -7,6 +7,39 @@ pub mod resources;
 
 use resources::Resources;
 use std::path::Path;
+use render_gl::data;
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, packed)]
+struct Vertex
+{
+	pos: data::f32_f32_f32,
+	color: data::f32_f32_f32,
+}
+
+impl Vertex
+{
+	fn vertex_attrib_pointers()
+	{
+		let stride = std::mem::size_of::<Self>(); // byte offset betweem consecutive attributes
+
+		let location = 0; // layout (location = 0)
+		let offset = 0; // offset of the first component
+
+		unsafe
+		{
+			data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset);
+		}
+
+		let location = 1; // layout (location = 1)
+		let offset = offset + std::mem::size_of::<data::f32_f32_f32>();
+
+		unsafe
+		{
+			data::f32_f32_f32::vertex_attrib_pointer(stride, location, offset)
+		}
+	}
+}
 
 fn main()
 {
@@ -33,26 +66,21 @@ fn main()
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
-	// leave the use here, bc ideally the following code will be moved to another file
-	// use std::ffi::CString;
-
-	// let vert_shader = render_gl::Shader::from_vert_source(
-	// 	&CString::new(include_str!("triangle.vert")).unwrap()
-	// ).unwrap();
-
-	// let frag_shader = render_gl::Shader::from_frag_source(
-	// 	&CString::new(include_str!("triangle.frag")).unwrap()
-	// ).unwrap();
-
 	let shader_program = render_gl::Program::from_res(
 		&res, "shaders/triangle"
 	).unwrap();
 
-	let vertices: Vec<f32> = vec![
-		// positions		// colors
-		0.5, -0.5, 0.0,		1.0, 0.0, 0.0,	// bottom right
-		-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,	// bottom left
-		0.0, 0.5, 0.0,		0.0, 0.0, 1.0	// top
+	// let vertices: Vec<f32> = vec![
+	// 	// positions		// colors
+	// 	0.5, -0.5, 0.0,		1.0, 0.0, 0.0,	// bottom right
+	// 	-0.5, -0.5, 0.0,	0.0, 1.0, 0.0,	// bottom left
+	// 	0.0, 0.5, 0.0,		0.0, 0.0, 1.0	// top
+	// ];
+
+	let vertices: Vec<Vertex> = vec![
+		Vertex { pos: (0.5, -0.5, 0.0).into(),	color: (1.0, 0.0, 0.0).into() },	// bottom right
+		Vertex { pos: (-0.5, -0.5, 0.0).into(),	color: (0.0, 1.0, 0.0).into() },	// bottom left
+		Vertex { pos: (0.0, 0.5, 0.0).into(),	color: (0.0, 0.0, 1.0).into() }	// top
 	];
 
 	// VBO - vertex buffer object, which lets us upload vertex data to the gpu (position, normal vector, color)
@@ -70,7 +98,7 @@ fn main()
 		gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
 		gl::BufferData(
 			gl::ARRAY_BUFFER,
-			(vertices.len() * std::mem::size_of::<f32>()) as gl::types::GLsizeiptr, // size of data in bytes
+			(vertices.len() * std::mem::size_of::<Vertex>()) as gl::types::GLsizeiptr, // size of data in bytes
 			vertices.as_ptr() as *const gl::types::GLvoid, // pointer to data
 			gl::STATIC_DRAW
 		);
@@ -90,26 +118,8 @@ fn main()
 		// We bind the VBO as well, to configure the realtion between the two
 		// Rebinding it might be wasteful, but its here to make it clear we actually need the VBO now
 		gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-		// Specify the data layout for attribute 0
-		gl::EnableVertexAttribArray(0);
-		gl::VertexAttribPointer(
-			0, // index of the generic vertex attribute
-			3, // Number of components per generic vertex attribute
-			gl::FLOAT,
-			gl::FALSE,
-			(6 * std::mem::size_of::<f32>()) as gl::types::GLint, // offset between consecutive attributes
-			std::ptr::null() // offset of the first component
-		);
-		// Specify the data layout for attribute 1
-		gl::EnableVertexAttribArray(1);
-		gl::VertexAttribPointer(
-			1, // index of the generic vertex attribute
-			3, // Number of components per generic vertex attribute
-			gl::FLOAT,
-			gl::FALSE,
-			(6 * std::mem::size_of::<f32>()) as gl::types::GLint, // offset between consecutive attributes
-			(3 * std::mem::size_of::<f32>()) as *const gl::types::GLvoid // offset of the first component
-		);
+
+		Vertex::vertex_attrib_pointers();
 
 		// Unbind VAO and VBO
 		gl::BindBuffer(gl::ARRAY_BUFFER, 0);
