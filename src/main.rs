@@ -28,13 +28,16 @@ fn main()
 
     let mut event_pump = sdl.event_pump().unwrap();
 
+	let mut viewport = render_gl::Viewport::for_window(900, 700);
+
     unsafe
 	{
-		gl::Viewport(0, 0, 900, 700);
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
 	let triangle = triangle::Triangle::new(&res).unwrap();
+
+	viewport.set_used();
 
     'main: loop
     {
@@ -44,6 +47,13 @@ fn main()
             match event
             {
                 sdl2::event::Event::Quit { .. } => break 'main,
+				sdl2::event::Event::Window {
+					win_event: sdl2::event::WindowEvent::Resized(w, h),
+					..
+				} => {
+					viewport.update_size(w, h);
+					viewport.set_used();
+				}
                 _ => {},
             }
         }
