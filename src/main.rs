@@ -3,10 +3,14 @@ extern crate gl;
 // open gl docs locally -> cargo doc -p gl --no-deps --open
 
 pub mod render_gl;
+pub mod resources;
+
+use resources::Resources;
+use std::path::Path;
 
 fn main()
 {
-    // println!("Hello, world!");
+	let res = Resources::from_relative_exe_path(Path::new("assets")).unwrap();
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
 	let gl_attr = video_subsystem.gl_attr();
@@ -30,18 +34,18 @@ fn main()
     }
 
 	// leave the use here, bc ideally the following code will be moved to another file
-	use std::ffi::CString;
+	// use std::ffi::CString;
 
-	let vert_shader = render_gl::Shader::from_vert_source(
-		&CString::new(include_str!("triangle.vert")).unwrap()
-	).unwrap();
+	// let vert_shader = render_gl::Shader::from_vert_source(
+	// 	&CString::new(include_str!("triangle.vert")).unwrap()
+	// ).unwrap();
 
-	let frag_shader = render_gl::Shader::from_frag_source(
-		&CString::new(include_str!("triangle.frag")).unwrap()
-	).unwrap();
+	// let frag_shader = render_gl::Shader::from_frag_source(
+	// 	&CString::new(include_str!("triangle.frag")).unwrap()
+	// ).unwrap();
 
-	let shader_program = render_gl::Program::from_shaders(
-		&[vert_shader, frag_shader]
+	let shader_program = render_gl::Program::from_res(
+		&res, "shaders/triangle"
 	).unwrap();
 
 	let vertices: Vec<f32> = vec![

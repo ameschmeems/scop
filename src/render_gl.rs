@@ -2,6 +2,28 @@ use gl;
 use std;
 use::std::ffi::{CStr, CString};
 
+use crate::resources::{Resources, self};
+
+#[derive(Debug)]
+pub enum Error
+{
+	ResourceLoad {
+		name: String,
+		inner: resources::Error
+	},
+	CanNotDetermineShaderTypeForResource {
+		name: String
+	},
+	CompileError {
+		name: String,
+		message: String
+	},
+	LinkError {
+		name: String,
+		message: String
+	}
+}
+
 pub struct Program
 {
 	id: gl::types::GLuint,
@@ -9,6 +31,27 @@ pub struct Program
 
 impl Program
 {
+
+	pub fn from_res(res: &Resources, name: &str) -> Result<Program, Error>
+	{
+		const POSSIBLE_EXT: [&str; 2] = [".vert", ".frag"];
+
+        let resource_names = POSSIBLE_EXT
+            .iter()
+            .map(|file_extension| format!("{}{}", name, file_extension))
+            .collect::<Vec<String>>();
+
+        let shaders = resource_names
+            .iter()
+            .map(|resource_name| Shader::from_res(res, resource_name))
+            .collect::<Result<Vec<Shader>, Error>>()?;
+
+        Program::from_shaders(&shaders[..]).map_err(|message| Error::LinkError {
+            name: name.into(),
+            message,
+        })
+	}
+
 	pub fn from_shaders(shaders: &[Shader]) -> Result<Program, String>
 	{
 		let program_id = unsafe { gl::CreateProgram() };
@@ -94,6 +137,28 @@ pub struct Shader
 
 impl Shader
 {
+	pub fn from_res(res: &Resources, name: &str) -> Result<Shader, Error>
+	{
+		const POSSIBLE_EXT: [(&str, gl::types::GLenum); 2] =
+            [(".vert", gl::VERTEX_SHADER), (".frag", gl::FRAGMENT_SHADER)];
+
+        let shader_kind = POSSIBLE_EXT
+            .iter()
+            .find(|&&(file_extension, _)| name.ends_with(file_extension))
+            .map(|&(_, kind)| kind)
+            .ok_or_else(|| Error::CanNotDetermineShaderTypeForResource { name: name.into() })?;
+
+        let source = res.load_cstring(name).map_err(|e| Error::ResourceLoad {
+            name: name.into(),
+            inner: e,
+        })?;
+
+        Shader::from_source(&source, shader_kind).map_err(|message| Error::CompileError {
+            name: name.into(),
+            message,
+        })
+	}
+
 	pub fn from_source(source: &CStr, kind: gl::types::GLenum) -> Result<Shader, String>
 	{
 		let id = shader_from_source(source, kind)?;
