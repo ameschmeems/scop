@@ -5,6 +5,7 @@ extern crate gl;
 pub mod render_gl;
 pub mod resources;
 pub mod triangle;
+pub mod square;
 
 use resources::Resources;
 use std::path::Path;
@@ -35,9 +36,15 @@ fn main()
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
-	let triangle = triangle::Triangle::new(&res).unwrap();
+	// let triangle = triangle::Triangle::new(&res).unwrap();
+	let square = square::Square::new(&res).unwrap();
 
 	viewport.set_used();
+
+	unsafe
+	{
+		gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+	}
 
     'main: loop
     {
@@ -63,7 +70,8 @@ fn main()
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
-		triangle.render();
+		// triangle.render();
+		square.render();
 
         window.gl_swap_window();
     }

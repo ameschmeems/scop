@@ -1,5 +1,35 @@
 #[derive(Copy, Clone, Debug)] // make deep copies of data, easily print data
 #[repr(C, packed)] // C-like layout of memory, ensure no gaps between values
+pub struct uint_uint_uint
+{
+	pub d0: gl::types::GLuint,
+	pub d1: gl::types::GLuint,
+	pub d2: gl::types::GLuint
+}
+
+impl uint_uint_uint
+{
+	pub fn new(d0: gl::types::GLuint, d1: gl::types::GLuint, d2: gl::types::GLuint) -> Self
+	{
+		uint_uint_uint { d0, d1, d2 }
+	}
+}
+
+impl From<(gl::types::GLuint, gl::types::GLuint, gl::types::GLuint)> for uint_uint_uint
+{
+	fn from(other: (gl::types::GLuint, gl::types::GLuint, gl::types::GLuint)) -> Self
+	{
+		uint_uint_uint {
+			d0: other.0,
+			d1: other.1,
+			d2: other.2
+		}
+	}
+}
+
+#[derive(Copy, Clone, Debug)]
+#[repr(C, packed)]
+
 pub struct f32_f32_f32
 {
 	pub d0: f32,

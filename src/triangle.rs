@@ -3,15 +3,15 @@ use crate::render_gl::{self, buffer, data};
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
-struct Vertex
+pub struct Vertex
 {
-	pos: data::f32_f32_f32,
-	color: data::f32_f32_f32,
+	pub pos: data::f32_f32_f32,
+	pub color: data::f32_f32_f32,
 }
 
 impl Vertex
 {
-	fn vertex_attrib_pointers()
+	pub fn vertex_attrib_pointers()
 	{
 		let stride = std::mem::size_of::<Self>(); // byte offset betweem consecutive attributes
 
