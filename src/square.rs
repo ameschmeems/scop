@@ -1,5 +1,5 @@
 use crate::resources::Resources;
-use crate::render_gl::{self, buffer, data};
+use crate::render_gl::{self, buffer, data, texture::Texture};
 use crate::triangle::Vertex;
 
 #[derive(Copy, Clone, Debug)]
@@ -14,20 +14,21 @@ pub struct Square
 	program: render_gl::Program,
 	_ebo: buffer::ElementArrayBuffer,
 	_vbo: buffer::ArrayBuffer,
-	vao: buffer::VertexArray
+	vao: buffer::VertexArray,
+	tex: Texture
 }
 
 impl Square
 {
-	pub fn new(res: &Resources) -> Result<Self, render_gl::Error>
+	pub fn new(res: &Resources, tex_path: &str) -> Result<Self, render_gl::Error>
 	{
 		let program = render_gl::Program::from_res(res, "shaders/triangle")?;
 
 		let vertices: Vec<Vertex> = vec![
-			Vertex { pos: (0.5, 0.5, 0.0).into(), color: (0.0, 0.0, 1.0).into() },
-			Vertex { pos: (0.5, -0.5, 0.0).into(), color: (0.0, 1.0, 0.0).into() },
-			Vertex { pos: (-0.5, -0.5, 0.0).into(), color: (0.0, 0.0, 1.0).into() },
-			Vertex { pos: (-0.5, 0.5, 0.0).into(), color: (1.0, 0.0, 0.0).into() }
+			Vertex { pos: (0.5, 0.5, 0.0).into(), color: (0.0, 0.0, 1.0).into(), texture: (1.0, 1.0).into() },
+			Vertex { pos: (0.5, -0.5, 0.0).into(), color: (0.0, 1.0, 0.0).into(), texture: (1.0, 0.0).into() },
+			Vertex { pos: (-0.5, -0.5, 0.0).into(), color: (0.0, 0.0, 1.0).into(), texture: (0.0, 0.0).into() },
+			Vertex { pos: (-0.5, 0.5, 0.0).into(), color: (1.0, 0.0, 0.0).into(), texture: (0.0, 1.0).into() }
 		];
 
 		let indices: Vec<Index> = vec![
@@ -40,6 +41,10 @@ impl Square
 		let ebo = buffer::ElementArrayBuffer::new();
 
 		let vbo = buffer::ArrayBuffer::new();
+
+		let tex = Texture::new();
+
+		tex.load(tex_path);
 
 		vao.bind();
 
@@ -59,13 +64,16 @@ impl Square
 			program,
 			_ebo: ebo,
 			_vbo: vbo,
-			vao
+			vao,
+			tex
 		})
 	}
 
 	pub fn render(&self)
 	{
+		self.tex.activate(gl::TEXTURE0);
 		self.program.set_used();
+		self.tex.bind();
 		self.vao.bind();
 
 		unsafe

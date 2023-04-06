@@ -1,5 +1,7 @@
 pub mod data;
 pub mod buffer;
+pub mod texture;
+
 mod shader;
 mod viewport;
 
