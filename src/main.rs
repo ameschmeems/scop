@@ -36,8 +36,8 @@ fn main()
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
     }
 
-	let triangle = triangle::Triangle::new(&res, "assets/textures/wall.jpg").unwrap();
-	// let square = square::Square::new(&res, "assets/textures/wall.jpg").unwrap();
+	// let triangle = triangle::Triangle::new(&res, "assets/textures/wall.jpg").unwrap();
+	let square = square::Square::new(&res, "assets/textures/wall.jpg").unwrap();
 
 	viewport.set_used();
 
@@ -70,8 +70,8 @@ fn main()
             gl::Clear(gl::COLOR_BUFFER_BIT);
         }
 
-		triangle.render();
-		// square.render();
+		// triangle.render();
+		square.render();
 
         window.gl_swap_window();
     }

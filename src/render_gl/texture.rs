@@ -68,7 +68,6 @@ impl Texture
 	{
 		unsafe
 		{
-			// gl::ActiveTexture(gl::TEXTURE0);
 			gl::BindTexture(gl::TEXTURE_2D, self.id);
 		}
 	}
