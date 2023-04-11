@@ -131,3 +131,14 @@ impl ops::Neg for Vector2
 		Self { x: -self.x, y: -self.y }
 	}
 }
+
+impl From<(f32, f32)> for Vector2
+{
+	fn from(other: (f32, f32)) -> Self
+	{
+		Self {
+			x: other.0,
+			y: other.1
+		}
+	}
+}

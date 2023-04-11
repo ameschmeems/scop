@@ -207,6 +207,18 @@ impl ops::Neg for Vector4
 	}
 }
 
+impl From<(f32, f32, f32, f32)> for Vector4
+{
+	fn from(other: (f32, f32, f32, f32)) -> Self
+	{
+		Self {
+			x: other.0,
+			y: other.1,
+			z: other.2,
+			w: other.3
+		}
+	}
+}
 
 impl From<(Vector3, f32)> for Vector4
 {

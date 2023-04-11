@@ -1,9 +1,11 @@
 pub mod vector;
+pub mod matrix;
 
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use vector::{Vector2, Vector3, Vector4};
+	use matrix::{Matrix2, Matrix3, Matrix4};
 
     #[test]
 	fn vec2_length()
@@ -418,5 +420,163 @@ mod tests {
 		let expect = Vector4::new(1.0, 2.0, 3.0, 4.0);
 
 		assert_eq!(w, expect);
+	}
+
+	#[test]
+	fn mat2_add()
+	{
+		let m1 = Matrix2::new((1.0, 2.0).into(), (3.0, 4.0).into());
+		let result = Matrix2::new((2.0, 4.0).into(), (6.0, 8.0).into());
+
+		assert_eq!(m1 + m1, result);
+	}
+
+	#[test]
+	fn mat3_add()
+	{
+		let m1 = Matrix3::new(
+			(1.0, 2.0, 3.0).into(),
+			(4.0, 5.0, 6.0).into(),
+			(7.0, 8.0, 9.0).into()
+		);
+
+		let result = Matrix3::new(
+			(2.0, 4.0, 6.0).into(),
+			(8.0, 10.0, 12.0).into(),
+			(14.0, 16.0, 18.0).into()
+		);
+
+		assert_eq!(m1 + m1, result);
+	}
+
+	#[test]
+	fn mat4_add()
+	{
+		let m1 = Matrix4::new(
+			(1.0, 2.0, 3.0, 4.0).into(),
+			(2.0, 3.0, 4.0, 5.0).into(),
+			(3.0, 4.0, 5.0, 6.0).into(),
+			(4.0, 5.0, 6.0, 7.0).into()
+		);
+
+		let result = Matrix4::new(
+			(2.0, 4.0, 6.0, 8.0).into(),
+			(4.0, 6.0, 8.0, 10.0).into(),
+			(6.0, 8.0, 10.0, 12.0).into(),
+			(8.0, 10.0, 12.0, 14.0).into()
+		);
+
+		assert_eq!(m1 + m1, result);
+	}
+
+	#[test]
+	fn mat2_sub()
+	{
+		let m1 = Matrix2::new((2.0, 2.0).into(), (3.0, 3.0).into());
+		let m2 = Matrix2::new((1.0, 2.0).into(), (3.0, 4.0).into());
+		let result = Matrix2::new((1.0, 0.0).into(), (0.0, -1.0).into());
+
+		assert_eq!(m1 - m2, result);
+	}
+
+	#[test]
+	fn mat3_sub()
+	{
+		let m1 = Matrix3::new(
+			(1.0, 2.0, 3.0).into(),
+			(4.0, 5.0, 6.0).into(),
+			(7.0, 8.0, 9.0).into()
+		);
+		let m2 = Matrix3::new(
+			(9.0, 8.0, 7.0).into(),
+			(6.0, 5.0, 4.0).into(),
+			(3.0, 2.0, 1.0).into()
+		);
+		let result = Matrix3::new(
+			(-8.0, -6.0, -4.0).into(),
+			(-2.0, 0.0, 2.0).into(),
+			(4.0, 6.0, 8.0).into()
+		);
+
+		assert_eq!(m1 - m2, result);
+	}
+
+	#[test]
+	fn mat4_sub()
+	{
+		let m1 = Matrix4::new(
+			(1.0, 2.0, 3.0, 4.0).into(),
+			(4.0, 3.0, 2.0, 1.0).into(),
+			(2.0, 1.0, 4.0, 3.0).into(),
+			(3.0, 4.0, 1.0, 2.0).into()
+		);
+
+		let m2 = Matrix4::new_identity();
+
+		let result = Matrix4::new(
+			(0.0, 2.0, 3.0, 4.0).into(),
+			(4.0, 2.0, 2.0, 1.0).into(),
+			(2.0, 1.0, 3.0, 3.0).into(),
+			(3.0, 4.0, 1.0, 1.0).into()
+		);
+
+		assert_eq!(m1 - m2, result);
+	}
+
+	#[test]
+	fn mat2_mul()
+	{
+		let m1 = Matrix2::new((1.0, 2.0).into(), (3.0, 4.0).into());
+		let m2 = Matrix2::new((5.0, 6.0).into(), (7.0, 8.0).into());
+		let result = Matrix2::new((19.0, 22.0).into(), (43.0, 50.0).into());
+
+		assert_eq!(m1 * m2, result);
+	}
+
+	#[test]
+	fn mat3_mul()
+	{
+		let m1 = Matrix3::new(
+			(4.0, 2.0, 0.0).into(),
+			(0.0, 8.0, 1.0).into(),
+			(0.0, 1.0, 0.0).into()
+		);
+
+		let m2 = Matrix3::new(
+			(4.0, 2.0, 1.0).into(),
+			(2.0, 0.0, 4.0).into(),
+			(9.0, 4.0, 2.0).into()
+		);
+
+		let result = Matrix3::new(
+			(20.0, 8.0, 12.0).into(),
+			(25.0, 4.0, 34.0).into(),
+			(2.0, 0.0, 4.0).into()
+		);
+
+		assert_eq!(m1 * m2, result);
+	}
+
+	#[test]
+	fn mat4_mul()
+	{
+		let m1 = Matrix4::new(
+			(1.0, 1.0, 1.0, 1.0).into(),
+			(2.0, 2.0, 2.0, 2.0).into(),
+			(3.0, 3.0, 3.0, 3.0).into(),
+			(4.0, 4.0, 4.0, 4.0).into()
+		);
+		let m2 = Matrix4::new_identity();
+		assert_eq!(m1 * m2, m1);
+	}
+
+	#[test]
+	fn mat2_mul_vec2()
+	{
+		let m = Matrix2::new((1.0, 2.0).into(), (3.0, 4.0).into());
+		let v = Vector2::new(1.0, 2.0);
+		let result = Vector2::new(5.0, 11.0);
+
+		assert_eq!(m * v, result);
 	}
 }
