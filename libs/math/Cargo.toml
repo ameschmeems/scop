@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 
 [dev-dependencies]
-nalgebra-glm = "0.3.0"

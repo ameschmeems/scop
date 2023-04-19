@@ -60,8 +60,6 @@ mod tests {
 	use vector::{Vector2, Vector3, Vector4};
 	use matrix::{Matrix2, Matrix3, Matrix4};
 
-	extern crate nalgebra_glm as glm;
-
     #[test]
 	fn vec2_length()
 	{
