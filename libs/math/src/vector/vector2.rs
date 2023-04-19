@@ -1,6 +1,7 @@
 use std::ops;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[repr(C, packed)]
 pub struct Vector2
 {
 	x: f32,

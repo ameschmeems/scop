@@ -1,6 +1,8 @@
 use crate::resources::Resources;
 use crate::render_gl::{self, buffer, data, texture::Texture};
 use crate::triangle::Vertex;
+use std::ffi::CString;
+extern crate math;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
@@ -69,12 +71,69 @@ impl Square
 		})
 	}
 
-	pub fn render(&self)
+	pub fn render(&self, angle: f32)
 	{
+		let transform = math::matrix::Matrix4::new_identity();
+		let v = math::vector::Vector3::new(0.5, -0.5, 0.0);
+		let transform = math::translate(&transform, &v);
+		let v = math::vector::Vector3::new(0.0, 0.0, 1.0);
+		let transform = math::rotate(&transform, (angle / 10.0).to_radians(), &v);
+		// println!("{:?}", transform);
+		// println!("{}", SystemTime::now().elapsed().unwrap().as_secs() as f32);
+		// let v = math::vector::Vector3::new(0.0, 0.0, 1.0);
+		// let transform = math::rotate(&transform, 90.0_f32.to_radians(), &v);
+		// let v = math::vector::Vector3::new(0.5, 0.5, 0.5);
+		// let transform = math::scale(&transform, &v);
+
+		let transform_location = unsafe {
+			let string = CString::new("transform").unwrap();
+			gl::GetUniformLocation(self.program.id(), string.as_ptr())
+		};
+
 		self.tex.activate(gl::TEXTURE0);
 		self.program.set_used();
+
+
+		unsafe
+		{
+			// Need to transpose the matrix before passing to the shader, as opengl expects numbers in columns, and we save numbers in rows
+			gl::UniformMatrix4fv(transform_location, 1, gl::FALSE, &transform.transposed() as *const math::matrix::Matrix4 as *const f32);
+		}
 		self.tex.bind();
 		self.vao.bind();
+
+		unsafe
+		{
+			gl::DrawElements(
+				gl::TRIANGLES,
+				6,
+				gl::UNSIGNED_INT,
+				0 as *const gl::types::GLvoid
+			)
+		}
+
+		let transform = math::matrix::Matrix4::new_identity();
+		let v = math::vector::Vector3::new(-0.5, 0.5, 0.0);
+		let transform = math::translate(&transform, &v);
+		// let v = math::vector::Vector3::new(0.0, 0.0, 1.0);
+		// let transform = math::rotate(&transform, (angle / 10.0).to_radians(), &v);
+		let v = math::vector::Vector3::new(0.5, 0.5, 0.0);
+		let transform = math::scale(&transform, &v);
+
+		let transform_location = unsafe {
+			let string = CString::new("transform").unwrap();
+			gl::GetUniformLocation(self.program.id(), string.as_ptr())
+		};
+
+		self.tex.activate(gl::TEXTURE0);
+		self.program.set_used();
+
+
+		unsafe
+		{
+			// Need to transpose the matrix before passing to the shader, as opengl expects numbers in columns, and we save numbers in rows
+			gl::UniformMatrix4fv(transform_location, 1, gl::FALSE, &transform.transposed() as *const math::matrix::Matrix4 as *const f32);
+		}
 
 		unsafe
 		{

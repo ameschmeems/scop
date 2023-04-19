@@ -2,10 +2,11 @@ use std::ops;
 use crate::vector::Vector2;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[repr(C, packed)]
 pub struct Matrix2
 {
-	r1: Vector2,
-	r2: Vector2
+	pub(crate) r1: Vector2,
+	pub(crate) r2: Vector2
 }
 
 impl Matrix2
@@ -32,6 +33,14 @@ impl Matrix2
 			r1: (1.0, 0.0).into(),
 			r2: (0.0, 1.0).into()
 		}
+	}
+
+	pub fn transposed(&self) -> Self
+	{
+		Matrix2::new(
+			(self.r1.x(), self.r2.x()).into(),
+			(self.r1.y(), self.r2.y()).into()
+		)
 	}
 }
 

@@ -46,6 +46,10 @@ fn main()
 	// 	gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 	// }
 
+	let mut rotation = 1.0;
+
+	// let time = SystemTime::now();
+
     'main: loop
     {
         for event in event_pump.poll_iter()
@@ -71,7 +75,9 @@ fn main()
         }
 
 		// triangle.render();
-		square.render();
+		// println!("{}", time.duration_since(SystemTime::UNIX_EPOCH).unwrap().subsec_millis() as f32);
+		square.render(rotation);
+		rotation += 1.0;
 
         window.gl_swap_window();
     }

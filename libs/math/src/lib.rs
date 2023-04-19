@@ -1,11 +1,66 @@
 pub mod vector;
 pub mod matrix;
 
+use crate::vector::Vector3;
+use crate::matrix::Matrix4;
+
+pub fn translate(m: &Matrix4, v: &Vector3) -> Matrix4
+{
+	let m2 = Matrix4::new(
+		(1.0, 0.0, 0.0, v.x()).into(),
+		(0.0, 1.0, 0.0, v.y()).into(),
+		(0.0, 0.0, 1.0, v.z()).into(),
+		(0.0, 0.0, 0.0, 1.0).into()
+	);
+
+	*m * m2
+}
+
+pub fn rotate(m: &Matrix4, angle: f32, v: &Vector3) -> Matrix4
+{
+	let cosine = angle.cos();
+	let sine = angle.sin();
+	let axis = v.normalized();
+
+	let rot1_1 = cosine + axis.x().powi(2) * (1.0 - cosine);
+	let rot1_2 = axis.x() * axis.y() * (1.0 - cosine) - axis.z() * sine;
+	let rot1_3 = axis.x() * axis.z() * (1.0 - cosine) + axis.y() * sine;
+	let rot2_1 = axis.y() * axis.x() * (1.0 - cosine) + axis.z() * sine;
+	let rot2_2 = cosine + axis.y().powi(2) * (1.0 - cosine);
+	let rot2_3 = axis.y() * axis.z() * (1.0 - cosine) - axis.x() * sine;
+	let rot3_1 = axis.z() * axis.x() * (1.0 - cosine) - axis.y() * sine;
+	let rot3_2 = axis.z() * axis.y() * (1.0 - cosine) + axis.x() * sine;
+	let rot3_3 = cosine + axis.z().powi(2) * (1.0 - cosine);
+
+	let rot = Matrix4::new(
+		(rot1_1, rot1_2, rot1_3, 0.0).into(),
+		(rot2_1, rot2_2, rot2_3, 0.0).into(),
+		(rot3_1, rot3_2, rot3_3, 0.0).into(),
+		(0.0, 0.0, 0.0, 1.0).into()
+	);
+
+	*m * rot
+}
+
+pub fn scale(m: &Matrix4, v: &Vector3) -> Matrix4
+{
+	let scaling_matrix = Matrix4::new(
+		(v.x(), 0.0, 0.0, 0.0).into(),
+		(0.0, v.y(), 0.0, 0.0).into(),
+		(0.0, 0.0, v.z(), 0.0).into(),
+		(0.0, 0.0, 0.0, 1.0).into()
+	);
+
+	*m * scaling_matrix
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
 	use vector::{Vector2, Vector3, Vector4};
 	use matrix::{Matrix2, Matrix3, Matrix4};
+
+	extern crate nalgebra_glm as glm;
 
     #[test]
 	fn vec2_length()
@@ -578,5 +633,95 @@ mod tests {
 		let result = Vector2::new(5.0, 11.0);
 
 		assert_eq!(m * v, result);
+	}
+
+	#[test]
+	fn mat3_mul_vec3()
+	{
+		let m = Matrix3::new(
+			(1.0, 1.0, 1.0).into(),
+			(1.0, 1.0, 1.0).into(),
+			(1.0, 1.0, 1.0).into()
+		);
+
+		let v = Vector3::new(1.0, 2.0, 3.0);
+
+		let result = Vector3::new(6.0, 6.0, 6.0);
+
+		assert_eq!(m * v, result);
+	}
+
+	#[test]
+	fn mat4_mul_vec4()
+	{
+		let m = Matrix4::new(
+			(1.0, 1.0, 1.0, 1.0).into(),
+			(1.0, 1.0, 1.0, 1.0).into(),
+			(1.0, 1.0, 1.0, 1.0).into(),
+			(1.0, 1.0, 1.0, 1.0).into()
+		);
+
+		let v = Vector4::new(1.0, 2.0, 3.0, 4.0);
+		let result = Vector4::new(10.0, 10.0, 10.0, 10.0);
+
+		assert_eq!(m * v, result);
+	}
+
+	#[test]
+	fn translate()
+	{
+		let m = Matrix4::new_identity();
+		let v = Vector3::new(1.0, 2.0, 3.0);
+		let result = Matrix4::new(
+			(1.0, 0.0, 0.0, 1.0).into(),
+			(0.0, 1.0, 0.0, 2.0).into(),
+			(0.0, 0.0, 1.0, 3.0).into(),
+			(0.0, 0.0, 0.0, 1.0).into()
+		);
+
+		assert_eq!(crate::translate(&m, &v), result);
+	}
+
+	#[test]
+	fn vec4_is_tightly_packed()
+	{
+		let v = Vector4::new(1.0, 2.0, 3.0, 4.0);
+
+		// Cast the struct to an f32 pointer
+		let ptr = &v as *const Vector4 as *const f32;
+
+		let x = unsafe { *ptr };
+		let y = unsafe { *ptr.add(1) };
+		let z = unsafe { *ptr.add(2) };
+		let w = unsafe { *ptr.add(3) };
+
+		// println!("{x}");
+
+		assert_eq!(x, v.x());
+		assert_eq!(y, v.y());
+		assert_eq!(z, v.z());
+		assert_eq!(w, v.w());
+	}
+
+	#[test]
+	fn mat4_is_tightly_packed()
+	{
+		let v1 = Vector4::new(1.0, 2.0, 3.0, 4.0);
+		let v2 = Vector4::new(5.0, 6.0, 7.0, 8.0);
+		let v3 = Vector4::new(9.0, 10.0, 11.0, 12.0);
+		let v4 = Vector4::new(13.0, 14.0, 15.0, 16.0);
+		let m = Matrix4::new(v1, v2, v3, v4);
+
+		let ptr = &m as *const Matrix4 as *const Vector4;
+
+		let t1 = unsafe { *ptr };
+		let t2 = unsafe { *ptr.add(1) };
+		let t3 = unsafe { *ptr.add(2) };
+		let t4 = unsafe { *ptr.add(3) };
+
+		assert_eq!(t1, v1);
+		assert_eq!(t2, v2);
+		assert_eq!(t3, v3);
+		assert_eq!(t4, v4);
 	}
 }

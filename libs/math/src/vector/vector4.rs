@@ -2,6 +2,7 @@ use crate::vector::Vector3;
 use std::ops;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[repr(C, packed)]
 pub struct Vector4
 {
 	x: f32,

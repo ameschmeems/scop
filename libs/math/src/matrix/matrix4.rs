@@ -2,12 +2,13 @@ use std::ops;
 use crate::vector::Vector4;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[repr(C, packed)]
 pub struct Matrix4
 {
-	r1: Vector4,
-	r2: Vector4,
-	r3: Vector4,
-	r4: Vector4,
+	pub(crate) r1: Vector4,
+	pub(crate) r2: Vector4,
+	pub(crate) r3: Vector4,
+	pub(crate) r4: Vector4,
 }
 
 impl Matrix4
@@ -40,6 +41,16 @@ impl Matrix4
 			r3: (0.0, 0.0, 1.0, 0.0).into(),
 			r4: (0.0, 0.0, 0.0, 1.0).into()
 		}
+	}
+
+	pub fn transposed(&self) -> Self
+	{
+		Matrix4::new(
+			(self.r1.x(), self.r2.x(), self.r3.x(), self.r4.x()).into(),
+			(self.r1.y(), self.r2.y(), self.r3.y(), self.r4.y()).into(),
+			(self.r1.z(), self.r2.z(), self.r3.z(), self.r4.z()).into(),
+			(self.r1.w(), self.r2.w(), self.r3.w(), self.r4.w()).into()
+		)
 	}
 }
 
@@ -117,5 +128,20 @@ impl ops::Mul<Matrix4> for Matrix4
 			r3: (res3_1, res3_2, res3_3, res3_4).into(),
 			r4: (res4_1, res4_2, res4_3, res4_4).into()
 		}
+	}
+}
+
+impl ops::Mul<Vector4> for Matrix4
+{
+	type Output = Vector4;
+
+	fn mul(self, rhs: Vector4) -> Vector4
+	{
+		Vector4::new(
+			self.r1.x() * rhs.x() + self.r1.y() * rhs.y() + self.r1.z() * rhs.z() + self.r1.w() * rhs.w(),
+			self.r2.x() * rhs.x() + self.r2.y() * rhs.y() + self.r2.z() * rhs.z() + self.r2.w() * rhs.w(),
+			self.r3.x() * rhs.x() + self.r3.y() * rhs.y() + self.r3.z() * rhs.z() + self.r3.w() * rhs.w(),
+			self.r4.x() * rhs.x() + self.r4.y() * rhs.y() + self.r4.z() * rhs.z() + self.r4.w() * rhs.w()
+		)
 	}
 }
