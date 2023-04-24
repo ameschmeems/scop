@@ -6,6 +6,7 @@ pub mod render_gl;
 pub mod resources;
 pub mod triangle;
 pub mod square;
+pub mod cube;
 
 use resources::Resources;
 use std::path::Path;
@@ -37,14 +38,16 @@ fn main()
     }
 
 	// let triangle = triangle::Triangle::new(&res, "assets/textures/wall.jpg").unwrap();
-	let square = square::Square::new(&res, "assets/textures/wall.jpg").unwrap();
+	// let square = square::Square::new(&res, "assets/textures/wall.jpg").unwrap();
+	let cube = cube::Cube::new(&res, "assets/textures/wall.jpg").unwrap();
 
 	viewport.set_used();
 
-	// unsafe
-	// {
-	// 	gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
-	// }
+	unsafe
+	{
+		// gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+		gl::Enable(gl::DEPTH_TEST);
+	}
 
 	let mut rotation = 1.0;
 
@@ -71,12 +74,13 @@ fn main()
 
         unsafe
         {
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
 		// triangle.render();
 		// println!("{}", time.duration_since(SystemTime::UNIX_EPOCH).unwrap().subsec_millis() as f32);
-		square.render(rotation);
+		// square.render(rotation);
+		cube.render(rotation);
 		rotation += 1.0;
 
         window.gl_swap_window();

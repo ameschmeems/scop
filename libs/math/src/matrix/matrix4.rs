@@ -23,6 +23,18 @@ impl Matrix4
 		}
 	}
 
+	// fov is in radians
+	pub fn new_perspective(fov: f32, aspect: f32, near: f32, far: f32) -> Self
+	{
+		let temp: f32 = (fov / 2.0).tan();
+		Matrix4 {
+			r1: (1.0 / (aspect * temp), 0.0, 0.0, 0.0).into(),
+			r2: (0.0, 1.0 / temp, 0.0, 0.0).into(),
+			r3: (0.0, 0.0, -(far + near) / (far - near), -(2.0 * far * near) / (far - near)).into(),
+			r4: (0.0, 0.0, -1.0, 0.0).into()
+		}
+	}
+
 	pub fn new_empty() -> Self
 	{
 		Matrix4 {
