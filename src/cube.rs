@@ -3,6 +3,7 @@ use crate::render_gl::{self, buffer, data, texture::Texture};
 use crate::triangle::Vertex;
 use std::ffi::CString;
 extern crate math;
+use math::vector::Vector3;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
@@ -108,17 +109,27 @@ impl Cube
 		})
 	}
 
-	pub fn render(&self, angle: f32)
+	pub fn render(&self, _time: f32, camera_pos: &Vector3, camera_front: &Vector3, camera_up: &Vector3)
 	{
-
-		// different transformations are here
+		// different transformations are here\
+		// let time = time * 0.001;
 
 		let model = math::matrix::Matrix4::new_identity();
 		// let model = math::rotate(&model, -55.0f32.to_radians(), &((1.0, 0.0, 0.0).into()));
-		let model = math::rotate(&model, angle * 0.1f32.to_radians(), &(0.5, 1.0, 0.0).into());
+		// let model = math::rotate(&model, * 0.1f32.to_radians(), &(0.5, 1.0, 0.0).into());
 
-		let view = math::matrix::Matrix4::new_identity();
-		let view = math::translate(&view, &((0.0, 0.0, -3.0).into()));
+		// let radius: f32 = 10.0;
+		// let cam_x: f32 = time.sin() * radius;
+		// let cam_z: f32 = time.cos() * radius;
+		let model = math::rotate(&model, 45.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
+
+		// let view = math::matrix::Matrix4::new_identity();
+		// let view = math::translate(&view, &((0.0, 0.0, -3.0).into()));
+		let view = math::look_at(
+			camera_pos,
+			&(*camera_pos + *camera_front),
+			camera_up
+		);
 
 		let projection = math::matrix::Matrix4::new_perspective(45.0f32.to_radians(), 900.0/700.0, 0.1, 100.0);
 		// let projection = math::matrix::Matrix4::new_identity();

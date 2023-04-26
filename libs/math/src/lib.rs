@@ -54,6 +54,22 @@ pub fn scale(m: &Matrix4, v: &Vector3) -> Matrix4
 	*m * scaling_matrix
 }
 
+pub fn look_at(eye: &Vector3, center: &Vector3, up: &Vector3) -> Matrix4
+{
+	let f = (*center - *eye).normalized();
+	let s = f.cross(up).normalized();
+	let u = s.cross(&f);
+
+	let result = Matrix4::new(
+		(s, -(s.dot(eye))).into(),
+		(u, -(u.dot(eye))).into(),
+		(-f, f.dot(eye)).into(),
+		(0.0, 0.0, 0.0, 1.0).into()
+	);
+
+	result
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;

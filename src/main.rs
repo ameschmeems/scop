@@ -10,6 +10,7 @@ pub mod cube;
 
 use resources::Resources;
 use std::path::Path;
+use sdl2::keyboard::Keycode;
 
 fn main()
 {
@@ -17,6 +18,10 @@ fn main()
     let sdl = sdl2::init().unwrap();
     let video_subsystem = sdl.video().unwrap();
 	let gl_attr = video_subsystem.gl_attr();
+	sdl.mouse().set_relative_mouse_mode(true);
+
+	// let timer = sdl2::Sdl::timer(&sdl).unwrap();
+	let timer = sdl.timer().unwrap();
 
 	// set opengl to core profile
 	gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
@@ -49,9 +54,30 @@ fn main()
 		gl::Enable(gl::DEPTH_TEST);
 	}
 
-	let mut rotation = 1.0;
-
 	// let time = SystemTime::now();
+
+	let mut camera_pos = math::vector::Vector3::new(0.0, 0.0, 3.0);
+	let mut camera_front;
+	let camera_up = math::vector::Vector3::new(0.0, 1.0, 0.0);
+
+	let mut first_mouse: bool = true;
+
+	let mut yaw: f32 = -90.0;
+	let mut pitch: f32 = 0.0;
+
+	let mut direction = math::vector::Vector3::new(
+		yaw.to_radians().cos() * pitch.to_radians().cos(),
+		pitch.to_radians().sin(),
+		yaw.to_radians().sin() * pitch.to_radians().cos()
+	);
+
+	camera_front = direction.normalized();
+
+	let mut delta_time: f32 = 0.0;
+	let mut last_frame: f32 = 0.0;
+
+	let mut last_mouse_x: f32= 450.0;
+	let mut last_mouse_y: f32 = 350.0;
 
     'main: loop
     {
@@ -67,7 +93,70 @@ fn main()
 				} => {
 					viewport.update_size(w, h);
 					viewport.set_used();
-				}
+				},
+				sdl2::event::Event::KeyDown {
+					keycode: Some(key),
+					..
+				} => {
+					let camera_speed: f32 = 0.1 * delta_time;
+					match key
+					{
+						Keycode::Escape => { break 'main }
+						Keycode::W => { camera_pos = camera_pos + camera_speed * camera_front; }
+						Keycode::S => { camera_pos = camera_pos - camera_speed * camera_front; }
+						Keycode::A => { camera_pos = camera_pos - camera_front.cross(&camera_up).normalized() * camera_speed; }
+						Keycode::D => { camera_pos = camera_pos + camera_front.cross(&camera_up).normalized() * camera_speed; }
+						_ => {}
+					}
+				},
+				sdl2::event::Event::MouseMotion {
+					// timestamp,
+					// window_id,
+					// which,
+					// mousestate,
+					// x,
+					// y,
+					xrel,
+					yrel,
+					..
+				} => {
+
+					if first_mouse // initially set to true
+					{
+						last_mouse_x = xrel as f32;
+						last_mouse_y = yrel as f32;
+						first_mouse = false;
+					}
+					let x_offset: f32 = xrel as f32 - last_mouse_x;
+					// Reversed, since y-coordinates range from bottom to top
+					let y_offset: f32 = last_mouse_y - yrel as f32;
+					// last_mouse_x = xrel as f32;
+					// last_mouse_y = yrel as f32;
+
+					let sensitivity: f32 = 0.1;
+					let x_offset = x_offset as f32 * sensitivity;
+					let y_offset = y_offset as f32 * sensitivity;
+
+					yaw += x_offset;
+					pitch += y_offset;
+
+					if pitch > 89.0
+					{
+						pitch = 89.0;
+					}
+					if pitch < -89.0
+					{
+						pitch = 89.0;
+					}
+
+					direction = math::vector::Vector3::new(
+						yaw.to_radians().cos() * pitch.to_radians().cos(),
+						pitch.to_radians().sin(),
+						yaw.to_radians().sin() * pitch.to_radians().cos()
+					);
+
+					camera_front = direction.normalized();
+				},
                 _ => {},
             }
         }
@@ -78,10 +167,11 @@ fn main()
         }
 
 		// triangle.render();
-		// println!("{}", time.duration_since(SystemTime::UNIX_EPOCH).unwrap().subsec_millis() as f32);
 		// square.render(rotation);
-		cube.render(rotation);
-		rotation += 1.0;
+		let current_frame = timer.ticks() as f32;
+		delta_time = current_frame - last_frame;
+		last_frame = current_frame;
+		cube.render(current_frame, &camera_pos, &camera_front, &camera_up);
 
         window.gl_swap_window();
     }
