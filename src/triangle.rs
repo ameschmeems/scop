@@ -14,7 +14,7 @@ impl Vertex
 {
 	pub fn vertex_attrib_pointers()
 	{
-		let stride = std::mem::size_of::<Self>(); // byte offset betweem consecutive attributes
+		let stride = std::mem::size_of::<Self>(); // byte offset between consecutive attributes
 
 		let location = 0; // layout (location = 0)
 		let offset = 0; // offset of the first component

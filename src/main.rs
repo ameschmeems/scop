@@ -7,6 +7,7 @@ pub mod resources;
 pub mod triangle;
 pub mod square;
 pub mod cube;
+pub mod model;
 
 use resources::Resources;
 use std::path::Path;
@@ -37,6 +38,18 @@ fn main()
 
 	let mut viewport = render_gl::Viewport::for_window(900, 700);
 
+	let indices = vec![0, 1, 3, 1, 2, 3];
+	let vertices: Vec<model::Vertex> = vec![
+		model::Vertex::new((0.5, 0.5, 0.0).into()),
+		model::Vertex::new((0.5, -0.5, 0.0).into()),
+		model::Vertex::new((-0.5, -0.5, 0.0).into()),
+		model::Vertex::new((-0.5, 0.5, 0.0).into()),
+	];
+
+	let program = self::render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
+
+	let square_mesh = model::Mesh::new(vertices, indices, program);
+
     unsafe
 	{
         gl::ClearColor(0.3, 0.3, 0.5, 1.0);
@@ -44,7 +57,7 @@ fn main()
 
 	// let triangle = triangle::Triangle::new(&res, "assets/textures/wall.jpg").unwrap();
 	// let square = square::Square::new(&res, "assets/textures/wall.jpg").unwrap();
-	let cube = cube::Cube::new(&res, "assets/textures/wall.jpg").unwrap();
+	// let cube = cube::Cube::new(&res, "assets/textures/wall.jpg").unwrap();
 
 	viewport.set_used();
 
@@ -171,7 +184,9 @@ fn main()
 		let current_frame = timer.ticks() as f32;
 		delta_time = current_frame - last_frame;
 		last_frame = current_frame;
-		cube.render(current_frame, &camera_pos, &camera_front, &camera_up);
+		// cube.render(current_frame, &camera_pos, &camera_front, &camera_up);
+
+		square_mesh.render();
 
         window.gl_swap_window();
     }
