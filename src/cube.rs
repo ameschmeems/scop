@@ -159,7 +159,6 @@ impl Cube
 		self.tex.activate(gl::TEXTURE0);
 		self.program.set_used();
 
-
 		unsafe
 		{
 			// Need to transpose the matrix before passing to the shader, as opengl expects numbers in columns, and we save numbers in rows

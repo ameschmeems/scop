@@ -48,7 +48,11 @@ fn main()
 
 	let program = self::render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
 
-	let square_mesh = model::Mesh::new(vertices, indices, program);
+	// let square_mesh = model::Mesh::new(vertices, indices, program);
+	let square_mesh = model::Mesh::from_file("assets/stuff/teapot.obj", program);
+	// let square_mesh = model::Mesh::from_file("assets/stuff/square.obj", program);
+	// let mesh_42 = model::Mesh::from_file("assets/stuff/42.obj", program);
+	// let cube_mesh = model::Mesh::from_file("assets/stuff/cube.obj", program);
 
     unsafe
 	{
@@ -186,7 +190,9 @@ fn main()
 		last_frame = current_frame;
 		// cube.render(current_frame, &camera_pos, &camera_front, &camera_up);
 
-		square_mesh.render();
+		// mesh_42.render(&camera_pos,  &camera_front, &camera_up);
+		// cube_mesh.render(&camera_pos,  &camera_front, &camera_up);
+		square_mesh.render(&camera_pos,  &camera_front, &camera_up);
 
         window.gl_swap_window();
     }
