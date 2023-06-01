@@ -85,8 +85,12 @@ impl Mesh
 			{
 				if let Ok(vertex) = line
 				{
-					let arr: Vec<&str> = vertex.split(" ").collect();
-					// println!("{:?}", elements);
+					let arr: Vec<&str> = vertex.split(" ").filter(|s| !s.is_empty()).collect();
+					if arr.is_empty()
+					{
+						continue ;
+					}
+					// println!("{:?}", arr);
 					if arr[0] == "v"
 					{
 						let tmp = math::vector::Vector3::new(arr[1].parse().unwrap(), arr[2].parse().unwrap(), arr[3].parse().unwrap());
@@ -104,12 +108,69 @@ impl Mesh
 					}
 					else if arr[0] == "f"
 					{
-						let tmp1: u32 = arr[1].parse().unwrap();
-						let tmp2: u32 = arr[2].parse().unwrap();
-						let tmp3: u32 = arr[3].parse().unwrap();
-						indices.push(tmp1 - 1);
-						indices.push(tmp2 - 1);
-						indices.push(tmp3 - 1);
+						if arr[1].contains("/")
+						{
+							let mut temp_arr: Vec<&str> = Vec::<&str>::new();
+							for (k, _) in arr.iter().enumerate()
+							{
+								if k != 0
+								{
+									let v: Vec<&str> = arr[k].split("/").collect();
+									temp_arr.push(v[0]);
+								}
+								else
+								{
+									temp_arr.push(arr[k]);
+								}
+							};
+							if temp_arr.len() == 5
+							{
+								let tmp1: u32 = temp_arr[1].parse().unwrap();
+								let tmp2: u32 = temp_arr[2].parse().unwrap();
+								let tmp3: u32 = temp_arr[3].parse().unwrap();
+								let tmp4: u32 = temp_arr[4].parse().unwrap();
+								indices.push(tmp1 - 1);
+								indices.push(tmp2 - 1);
+								indices.push(tmp3 - 1);
+								indices.push(tmp1 - 1);
+								indices.push(tmp3 - 1);
+								indices.push(tmp4 - 1);
+							}
+							else
+							{
+								let tmp1: u32 = temp_arr[1].parse().unwrap();
+								let tmp2: u32 = temp_arr[2].parse().unwrap();
+								let tmp3: u32 = temp_arr[3].parse().unwrap();
+								indices.push(tmp1 - 1);
+								indices.push(tmp2 - 1);
+								indices.push(tmp3 - 1);
+							}
+						}
+						else
+						{
+							if arr.len() == 5
+							{
+								let tmp1: u32 = arr[1].parse().unwrap();
+								let tmp2: u32 = arr[2].parse().unwrap();
+								let tmp3: u32 = arr[3].parse().unwrap();
+								let tmp4: u32 = arr[4].parse().unwrap();
+								indices.push(tmp1 - 1);
+								indices.push(tmp2 - 1);
+								indices.push(tmp3 - 1);
+								indices.push(tmp1 - 1);
+								indices.push(tmp3 - 1);
+								indices.push(tmp4 - 1);
+							}
+							else
+							{
+								let tmp1: u32 = arr[1].parse().unwrap();
+								let tmp2: u32 = arr[2].parse().unwrap();
+								let tmp3: u32 = arr[3].parse().unwrap();
+								indices.push(tmp1 - 1);
+								indices.push(tmp2 - 1);
+								indices.push(tmp3 - 1);
+							}
+						}
 					}
 				}
 			}
@@ -192,7 +253,7 @@ impl Mesh
 	pub fn render(&self, camera_pos: &Vector3, camera_front: &Vector3, camera_up: &Vector3)
 	{
 		let model = math::matrix::Matrix4::new_identity();
-		let model = math::rotate(&model, 45.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
+		let model = math::rotate(&model, 0.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
 
 		let view = math::look_at(
 			camera_pos,
