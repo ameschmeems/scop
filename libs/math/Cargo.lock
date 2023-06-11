@@ -81,47 +81,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fc7aa29613bd6a620df431842069224d8bc9011086b1db4c0e0cd47fa03ec9a"
 
 [[package]]
-name = "math"
-version = "0.1.0"
-dependencies = [
- "nalgebra-glm",
-]
-
-[[package]]
 name = "matrixmultiply"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "916806ba0031cd542105d916a97c8572e1fa6dd79c9c51e7eb43a09ec2dd84c1"
 dependencies = [
  "rawpointer",
-]
-
-[[package]]
-name = "nalgebra"
-version = "0.17.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be539bb5e751c248d25c21c850b69105809306f367c35bf1daa8724f0cb786df"
-dependencies = [
- "alga",
- "approx",
- "generic-array",
- "matrixmultiply",
- "num-complex",
- "num-traits",
- "rand",
- "typenum",
-]
-
-[[package]]
-name = "nalgebra-glm"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07a3be33aa9aa21ad8959e80cd7435c23c6fe0cc39d0af98bda9a4e486962df2"
-dependencies = [
- "alga",
- "approx",
- "nalgebra",
- "num-traits",
 ]
 
 [[package]]

@@ -20,6 +20,6 @@ void main()
 	// gl_Position = vec4(Position, 1.0);
 	// gl_Position = transform * vec4(Position, 1.0);
 	gl_Position = projection * view * model * vec4(Position, 1.0);
-	OUT.Color = vec3(1.0, 0.0, 0.0);
+	OUT.Color = vec3(0.3, 0.3, 0.3);
 	// OUT.TexCoord = TexCoord;
 }

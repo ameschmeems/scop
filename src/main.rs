@@ -51,7 +51,7 @@ fn main()
 	// let square_mesh = model::Mesh::new(vertices, indices, program);
 	// let square_mesh = model::Mesh::from_file("assets/stuff/teapot.obj", program);
 	// let square_mesh = model::Mesh::from_file("assets/stuff/square.obj", program);
-	let mesh_42 = model::Mesh::from_file("assets/stuff/teapot.obj", program);
+	let mesh_42 = model::Mesh::from_file("assets/models/teapot2.obj", program);
 	// let cube_mesh = model::Mesh::from_file("assets/stuff/teapot.obj", program);
 
     unsafe
@@ -67,13 +67,13 @@ fn main()
 
 	unsafe
 	{
-		// gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+		gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
 		gl::Enable(gl::DEPTH_TEST);
 	}
 
 	// let time = SystemTime::now();
 
-	let mut camera_pos = math::vector::Vector3::new(0.0, 0.0, 3.0);
+	let mut camera_pos = math::vector::Vector3::new(0.0, 0.0, 15.0);
 	let mut camera_front;
 	let camera_up = math::vector::Vector3::new(0.0, 1.0, 0.0);
 
@@ -115,7 +115,7 @@ fn main()
 					keycode: Some(key),
 					..
 				} => {
-					let camera_speed: f32 = 0.1 * delta_time;
+					let camera_speed: f32 = 0.01 * delta_time;
 					match key
 					{
 						Keycode::Escape => { break 'main }
