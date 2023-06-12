@@ -7,7 +7,6 @@ use std::path::Path;
 use std::vec::Vec;
 use std::fs::File;
 use rand::Rng;
-
 use crate::render_gl::{self, buffer};
 
 #[derive(Copy, Clone, Debug)]
@@ -188,6 +187,10 @@ impl Mesh
 			let mut random_num1: f32 = rng.gen_range(0.0..1.0);
 			let mut random_num2: f32 = rng.gen_range(0.0..1.0);
 			let mut random_num3: f32 = rng.gen_range(0.0..1.0);
+
+			// let mut random_num1: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
+			// let mut random_num2: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
+			// let mut random_num3: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
 			vertices.push(Vertex::new(i, (random_num1, random_num2, random_num3).into()));
 		}
 
