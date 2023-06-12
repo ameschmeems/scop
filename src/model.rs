@@ -6,6 +6,7 @@ use std::io::{self, BufRead};
 use std::path::Path;
 use std::vec::Vec;
 use std::fs::File;
+use rand::Rng;
 
 use crate::render_gl::{self, buffer};
 
@@ -16,16 +17,18 @@ pub struct Vertex
 	position: math::vector::Vector3,
 	normal: math::vector::Vector3,
 	texcoord: math::vector::Vector2,
+	color: math::vector::Vector3
 }
 
 impl Vertex
 {
-	pub fn new(position: math::vector::Vector3) -> Self
+	pub fn new(position: math::vector::Vector3, color: math::vector::Vector3) -> Self
 	{
 		Self {
 			position,
 			normal: (0.0, 0.0, 0.0).into(),
-			texcoord: (0.0, 0.0).into()
+			texcoord: (0.0, 0.0).into(),
+			color
 		}
 	}
 }
@@ -178,9 +181,14 @@ impl Mesh
 		// println!("{:?}", temp_vertices);
 		// println!("{:?}", temp_indices);
 		let mut vertices = Vec::<Vertex>::new();
+		let mut rng = rand::thread_rng();
+		
 		for i in temp_vertices
 		{
-			vertices.push(Vertex::new(i));
+			let mut random_num1: f32 = rng.gen_range(0.0..1.0);
+			let mut random_num2: f32 = rng.gen_range(0.0..1.0);
+			let mut random_num3: f32 = rng.gen_range(0.0..1.0);
+			vertices.push(Vertex::new(i, (random_num1, random_num2, random_num3).into()));
 		}
 
 		// println!("{:?}", vertices);
@@ -246,6 +254,17 @@ impl Mesh
 				std::mem::size_of::<Vertex>() as gl::types::GLint,
 				(std::mem::size_of::<math::vector::Vector3>() * 2) as *const gl::types::GLvoid
 			);
+
+			// color
+			gl::EnableVertexAttribArray(3);
+			gl::VertexAttribPointer(
+				3,
+				3,
+				gl::FLOAT,
+				gl::FALSE,
+				std::mem::size_of::<Vertex>() as gl::types::GLint,
+				(std::mem::size_of::<math::vector::Vector3>() * 2 + std::mem::size_of::<math::vector::Vector2>()) as *const gl::types::GLvoid
+			)
 		}
 		self.vao.unbind();
 	}
@@ -253,11 +272,12 @@ impl Mesh
 	pub fn render(&self, camera_pos: &Vector3, camera_front: &Vector3, camera_up: &Vector3)
 	{
 		let model = math::matrix::Matrix4::new_identity();
-		let model = math::rotate(&model, 0.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
+		// let model = math::rotate(&model, 0.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
 
 		let view = math::look_at(
 			camera_pos,
-			&(*camera_pos + *camera_front),
+			// &(*camera_pos + *camera_front),
+			camera_front,
 			camera_up
 		);
 
