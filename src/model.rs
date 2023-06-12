@@ -184,9 +184,9 @@ impl Mesh
 		
 		for i in temp_vertices
 		{
-			let mut random_num1: f32 = rng.gen_range(0.0..1.0);
-			let mut random_num2: f32 = rng.gen_range(0.0..1.0);
-			let mut random_num3: f32 = rng.gen_range(0.0..1.0);
+			let random_num1: f32 = rng.gen_range(0.0..1.0);
+			let random_num2: f32 = rng.gen_range(0.0..1.0);
+			let random_num3: f32 = rng.gen_range(0.0..1.0);
 
 			// let mut random_num1: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
 			// let mut random_num2: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
