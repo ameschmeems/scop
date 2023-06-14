@@ -8,6 +8,8 @@ pub mod triangle;
 pub mod square;
 pub mod cube;
 pub mod model;
+pub mod scene;
+pub mod camera;
 
 use resources::Resources;
 use std::path::Path;
@@ -38,7 +40,7 @@ fn main()
 
 	let mut viewport = render_gl::Viewport::for_window(900, 700);
 
-	let indices = vec![0, 1, 3, 1, 2, 3];
+	// let indices = vec![0, 1, 3, 1, 2, 3];
 	// let vertices: Vec<model::Vertex> = vec![
 	// 	model::Vertex::new((0.5, 0.5, 0.0).into()),
 	// 	model::Vertex::new((0.5, -0.5, 0.0).into()),
@@ -100,6 +102,13 @@ fn main()
 	let mut last_mouse_x: f32= 450.0;
 	let mut last_mouse_y: f32 = 350.0;
 
+	// projection matrix for the scene
+	let projection = math::matrix::Matrix4::new_perspective(45.0f32.to_radians(), 900.0/700.0, 0.1, 100.0);
+
+	let camera = camera::Camera::new();
+
+	let mut scene = scene::Scene::new(vec![mesh_42], projection, camera);
+
     'main: loop
     {
         for event in event_pump.poll_iter()
@@ -123,11 +132,7 @@ fn main()
 					match key
 					{
 						Keycode::Escape => { break 'main }
-						// Keycode::W => { camera_pos = camera_pos + camera_speed * camera_front; }
-						// Keycode::S => { camera_pos = camera_pos - camera_speed * camera_front; }
-						// Keycode::A => { camera_pos = camera_pos - camera_front.cross(&camera_up).normalized() * camera_speed; }
-						// Keycode::D => { camera_pos = camera_pos + camera_front.cross(&camera_up).normalized() * camera_speed; }
-						_ => {}
+						_ => { scene.camera.update_camera(delta_time, event) }
 					}
 				},
 				// sdl2::event::Event::MouseMotion {
@@ -178,7 +183,7 @@ fn main()
 
 				// 	camera_front = direction.normalized();
 				// },
-                _ => {},
+                _ => { scene.camera.update_camera(delta_time, event) },
             }
         }
 
@@ -197,11 +202,12 @@ fn main()
 		let radius = 10.0;
 		camera_pos = math::vector::Vector3::new(((current_frame * 0.001).sin()) * radius, 0.0, (current_frame * 0.001).cos() * radius);
 
-		mesh_42.render(&camera_pos,  &camera_front, &camera_up);
+		scene.draw(&camera_pos, &camera_front, &camera_up);
+
+		// mesh_42.render(&camera_pos,  &camera_front, &camera_up);
 		// cube_mesh.render(&camera_pos,  &camera_front, &camera_up);
 		// square_mesh.render(&camera_pos,  &camera_front, &camera_up);
 
         window.gl_swap_window();
     }
 }
-
