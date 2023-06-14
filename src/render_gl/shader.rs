@@ -24,6 +24,7 @@ pub enum Error
 	}
 }
 
+#[derive(Clone)]
 pub struct Program
 {
 	id: gl::types::GLuint,

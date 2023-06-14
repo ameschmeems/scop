@@ -50,10 +50,14 @@ fn main()
 
 	let program = self::render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
 
+	// i fucked up and need to have a seperate copy for each model or it won't compile (fix it pls, future me)
+	let program_2 = self::render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
+
 	// let square_mesh = model::Mesh::new(vertices, indices, program);
 	// let square_mesh = model::Mesh::from_file("assets/stuff/teapot.obj", program);
 	// let square_mesh = model::Mesh::from_file("assets/stuff/square.obj", program);
-	let mesh_42 = model::Mesh::from_file("assets/models/teapot2.obj", program);
+	let mesh_42 = model::Mesh::from_file("assets/models/42.obj", program);
+	let mesh_teapot = model::Mesh::from_file("assets/models/teapot2.obj", program_2);
 	// let cube_mesh = model::Mesh::from_file("assets/stuff/teapot.obj", program);
 
     unsafe
@@ -99,7 +103,7 @@ fn main()
 	let mut delta_time: f32 = 0.0;
 	let mut last_frame: f32 = 0.0;
 
-	let mut last_mouse_x: f32= 450.0;
+	let mut last_mouse_x: f32 = 450.0;
 	let mut last_mouse_y: f32 = 350.0;
 
 	// projection matrix for the scene
@@ -107,7 +111,7 @@ fn main()
 
 	let camera = camera::Camera::new();
 
-	let mut scene = scene::Scene::new(vec![mesh_42], projection, camera);
+	let mut scene = scene::Scene::new(vec![mesh_teapot], projection, camera);
 
     'main: loop
     {
@@ -132,7 +136,7 @@ fn main()
 					match key
 					{
 						Keycode::Escape => { break 'main }
-						_ => { scene.camera.update_camera(delta_time, event) }
+						_ => { scene.process_input(delta_time, &event) }
 					}
 				},
 				// sdl2::event::Event::MouseMotion {
@@ -183,7 +187,7 @@ fn main()
 
 				// 	camera_front = direction.normalized();
 				// },
-                _ => { scene.camera.update_camera(delta_time, event) },
+                _ => { scene.camera.update_camera(delta_time, &event) },
             }
         }
 

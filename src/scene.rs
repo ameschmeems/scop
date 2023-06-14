@@ -4,6 +4,7 @@ use gl;
 use std::vec::Vec;
 use crate::model;
 use crate::camera::Camera;
+use sdl2;
 
 pub struct Scene
 {
@@ -20,6 +21,15 @@ impl Scene
             models,
             projection,
             camera
+        }
+    }
+
+    pub fn process_input(&mut self, delta_time: f32, event: &sdl2::event::Event)
+    {
+        self.camera.update_camera(delta_time, event);
+        for model in &mut self.models
+        {
+            model.update_pos(event);
         }
     }
 

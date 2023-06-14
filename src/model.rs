@@ -1,6 +1,5 @@
 use math;
 use gl;
-use math::vector::Vector3;
 use std::ffi::CString;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -8,6 +7,7 @@ use std::vec::Vec;
 use std::fs::File;
 use rand::Rng;
 use crate::render_gl::{self, buffer};
+use sdl2::keyboard::Keycode;
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C, packed)]
@@ -40,7 +40,8 @@ pub struct Mesh
 	vao: buffer::VertexArray,
 	vbo: buffer::ArrayBuffer,
 	ebo: buffer::ElementArrayBuffer,
-	program: render_gl::Program
+	program: render_gl::Program,
+	model_mat: math::matrix::Matrix4
 }
 
 impl Mesh
@@ -59,7 +60,8 @@ impl Mesh
 			vao,
 			vbo,
 			ebo,
-			program
+			program,
+			model_mat: math::matrix::Matrix4::new_identity()
 		};
 
 		mesh.setup_mesh();
@@ -204,7 +206,8 @@ impl Mesh
 			vao,
 			vbo,
 			ebo,
-			program
+			program,
+			model_mat: math::matrix::Matrix4::new_identity()
 		};
 
 
@@ -272,9 +275,38 @@ impl Mesh
 		self.vao.unbind();
 	}
 
+	pub fn update_pos(&mut self, event: &sdl2::event::Event)
+	{
+		match event
+		{
+			sdl2::event::Event::KeyDown {
+				keycode: Some(key),
+				..
+			} => {
+				match key
+				{
+					Keycode::A => {
+						self.model_mat = math::rotate(&self.model_mat, 3_f32.to_radians(), &(0.0, -1.0, 0.0).into())
+					},
+					Keycode::D => {
+						self.model_mat = math::rotate(&self.model_mat, 3_f32.to_radians(), &(0.0, 1.0, 0.0).into())
+					},
+					Keycode::W => {
+						self.model_mat = math::rotate(&self.model_mat, 3_f32.to_radians(), &(-1.0, 0.0, 0.0).into())
+					},
+					Keycode::S => {
+						self.model_mat = math::rotate(&self.model_mat, 3_f32.to_radians(), &(1.0, 0.0, 0.0).into())
+					},
+					_ => {}
+				}
+			},
+			_ => {}
+		}
+	}
+
 	pub fn render(&self, view: &math::matrix::Matrix4)
 	{
-		let model = math::matrix::Matrix4::new_identity();
+		// let model = math::matrix::Matrix4::new_identity();
 		// let model = math::rotate(&model, 0.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
 
 		// let view = math::look_at(
@@ -306,7 +338,7 @@ impl Mesh
 		unsafe
 		{
 			// Need to transpose the matrix before passing to the shader, as opengl expects numbers in columns, and we save numbers in rows
-			gl::UniformMatrix4fv(model_location, 1, gl::FALSE, &model.transposed() as *const math::matrix::Matrix4 as *const f32);
+			gl::UniformMatrix4fv(model_location, 1, gl::FALSE, &self.model_mat.transposed() as *const math::matrix::Matrix4 as *const f32);
 			gl::UniformMatrix4fv(view_location, 1, gl::FALSE, &view.transposed() as *const math::matrix::Matrix4 as *const f32);
 			gl::UniformMatrix4fv(projection_location, 1, gl::FALSE, &projection.transposed() as *const math::matrix::Matrix4 as *const f32);
 		}
