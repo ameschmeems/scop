@@ -4,9 +4,6 @@ extern crate gl;
 
 pub mod render_gl;
 pub mod resources;
-pub mod triangle;
-pub mod square;
-pub mod cube;
 pub mod model;
 pub mod scene;
 pub mod camera;
