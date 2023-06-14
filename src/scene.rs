@@ -1,6 +1,4 @@
 use math;
-use math::vector::Vector3;
-use gl;
 use std::vec::Vec;
 use crate::model;
 use crate::camera::Camera;
@@ -15,8 +13,10 @@ pub struct Scene
 
 impl Scene
 {
-    pub fn new(models: Vec<model::Mesh>, projection: math::matrix::Matrix4, camera: Camera) -> Self
+    pub fn new(models: Vec<model::Mesh>, camera: Camera) -> Self
     {
+        let projection = math::matrix::Matrix4::new_perspective(45.0f32.to_radians(), 900.0/700.0, 0.1, 100.0);
+
         Self {
             models,
             projection,
@@ -24,20 +24,20 @@ impl Scene
         }
     }
 
-    pub fn process_input(&mut self, delta_time: f32, event: &sdl2::event::Event)
+    pub fn process_input(&mut self, event: &sdl2::event::Event)
     {
-        self.camera.update_camera(delta_time, event);
+        self.camera.update_camera(event);
         for model in &mut self.models
         {
             model.update_pos(event);
         }
     }
 
-    pub fn draw(&self, camera_pos: &Vector3, camera_front: &Vector3, camera_up: &Vector3)
+    pub fn draw(&self)
     {
         for model in &self.models
         {
-            model.render(self.camera.view());
+            model.render(self.camera.view(), &self.projection);
         }
     }
 }

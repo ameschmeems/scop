@@ -1,10 +1,9 @@
-use math::{self, look_at};
+use math;
 use sdl2;
 
 pub struct Camera
 {
 	view: math::matrix::Matrix4,
-	// event_pump: sdl2::EventPump,
 	camera_pos: math::vector::Vector3,
 	camera_front: math::vector::Vector3,
 	camera_up: math::vector::Vector3,
@@ -24,7 +23,6 @@ impl Camera
 		);
 		Self {
 			view,
-			// &event_pump,
 			camera_pos,
 			camera_front,
 			camera_up,
@@ -36,33 +34,10 @@ impl Camera
 		&self.view
 	}
 
-	pub fn update_camera(&mut self, delta_time: f32, event: &sdl2::event::Event)
+	pub fn update_camera(&mut self, event: &sdl2::event::Event)
 	{
 		match event
 		{
-			// sdl2::event::Event::KeyDown {
-			// 	keycode: Some(key),
-			// 	..
-			// } => {
-			// 	let camera_speed: f32 = 0.01;
-			// 	let radius = 10.0;
-			// 	match key
-			// 	{
-			// 		Keycode::A => {
-			// 			self.view = math::rotate(self.view(), 3_f32.to_radians(), &(0.0, -1.0, 0.0).into());
-			// 		},
-			// 		Keycode::D => {
-			// 			self.view = math::rotate(self.view(), 3_f32.to_radians(), &(0.0, 1.0, 0.0).into());
-			// 		},
-			// 		Keycode::W => {
-			// 			self.view = math::rotate(self.view(), 3_f32.to_radians(), &(-1.0, 0.0, 0.0).into());
-			// 		},
-			// 		Keycode::S => {
-			// 			self.view = math::rotate(self.view(), 3_f32.to_radians(), &(1.0, 0.0, 0.0).into());
-			// 		},
-			// 		_ => {}
-			// 	}
-			// },
 			sdl2::event::Event::MouseMotion { 
 				xrel,
 				yrel,

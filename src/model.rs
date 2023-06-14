@@ -304,20 +304,8 @@ impl Mesh
 		}
 	}
 
-	pub fn render(&self, view: &math::matrix::Matrix4)
+	pub fn render(&self, view: &math::matrix::Matrix4, projection: &math::matrix::Matrix4)
 	{
-		// let model = math::matrix::Matrix4::new_identity();
-		// let model = math::rotate(&model, 0.0f32.to_radians(), &(0.5, 1.0, 0.0).into());
-
-		// let view = math::look_at(
-		// 	camera_pos,
-			// &(*camera_pos + *camera_front),
-		// 	camera_front,
-		// 	camera_up
-		// );
-
-		let projection = math::matrix::Matrix4::new_perspective(45.0f32.to_radians(), 900.0/700.0, 0.1, 100.0);
-
 		let model_location = unsafe {
 			let string = CString::new("model").unwrap();
 			gl::GetUniformLocation(self.program.id(), string.as_ptr())
