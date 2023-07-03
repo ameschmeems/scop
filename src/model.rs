@@ -6,7 +6,7 @@ use std::path::Path;
 use std::vec::Vec;
 use std::fs::File;
 use rand::Rng;
-use crate::render_gl::{self, buffer};
+use crate::render_gl::{self, buffer, texture};
 use sdl2::keyboard::Keycode;
 
 #[derive(Copy, Clone, Debug)]
@@ -21,12 +21,12 @@ pub struct Vertex
 
 impl Vertex
 {
-	pub fn new(position: math::vector::Vector3, color: math::vector::Vector3) -> Self
+	pub fn new(position: math::vector::Vector3, color: math::vector::Vector3, texcoord: math::vector::Vector2) -> Self
 	{
 		Self {
 			position,
 			normal: (0.0, 0.0, 0.0).into(),
-			texcoord: (0.0, 0.0).into(),
+			texcoord,
 			color
 		}
 	}
@@ -37,6 +37,7 @@ pub struct Mesh
 	vertices: Vec<Vertex>,
 	indices: Vec<u32>,
 	// textures: Vec<texture::Texture>,
+	texture: texture::Texture,
 	vao: buffer::VertexArray,
 	vbo: buffer::ArrayBuffer,
 	ebo: buffer::ElementArrayBuffer,
@@ -47,16 +48,18 @@ pub struct Mesh
 impl Mesh
 {
 	// basic constructor from raw data (could use it to re-create the triangla/square/cube objects)
-	pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>, program: render_gl::Program) -> Self
+	pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>, program: render_gl::Program, tex_path: &str) -> Self
 	{
 		let vao = buffer::VertexArray::new();
 		let ebo = buffer::ElementArrayBuffer::new();
 		let vbo = buffer::ArrayBuffer::new();
+		let texture = texture::Texture::new();
+		texture.load(tex_path);
 
 		let mesh = Mesh {
 			vertices,
 			indices,
-			// textures,
+			texture,
 			vao,
 			vbo,
 			ebo,
@@ -70,12 +73,16 @@ impl Mesh
 	}
 
 
-	pub fn from_file<T>(filename: T, program: render_gl::Program) -> Self
+	pub fn from_file<T>(filename: T, program: render_gl::Program, tex_path: &str) -> Self
 	where T: AsRef<Path>
 	{
 		let vao = buffer::VertexArray::new();
 		let ebo = buffer::ElementArrayBuffer::new();
 		let vbo = buffer::ArrayBuffer::new();
+		let texture = texture::Texture::new();
+		texture.load(tex_path);
+		texture.set_filtering(gl::REPEAT);
+		texture.set_wrapping(gl::REPEAT);
 
 		let mut temp_vertices = Vec::<math::vector::Vector3>::new();
 		let mut temp_texcoords = Vec::<math::vector::Vector2>::new();
@@ -193,7 +200,7 @@ impl Mesh
 			// let mut random_num1: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
 			// let mut random_num2: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
 			// let mut random_num3: f32 = (u32::MAX as f32) / (u32::MAX as f32 + 1.0);
-			vertices.push(Vertex::new(i, (random_num1, random_num2, random_num3).into()));
+			vertices.push(Vertex::new(i, (random_num1, random_num2, random_num3).into(), (i.x(), i.y()).into()));
 		}
 
 		// println!("{:?}", vertices);
@@ -202,7 +209,7 @@ impl Mesh
 		let mesh = Mesh {
 			vertices,
 			indices,
-			// textures,
+			texture,
 			vao,
 			vbo,
 			ebo,
@@ -322,6 +329,8 @@ impl Mesh
 		};
 
 		self.program.set_used();
+
+		self.texture.activate(gl::TEXTURE0);
 
 		unsafe
 		{

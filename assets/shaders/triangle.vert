@@ -22,5 +22,5 @@ void main()
 	// gl_Position = transform * vec4(Position, 1.0);
 	gl_Position = projection * view * model * vec4(Position, 1.0);
 	OUT.Color = Color;
-	// OUT.TexCoord = TexCoord;
+	OUT.TexCoord = TexCoord;
 }

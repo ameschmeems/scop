@@ -42,7 +42,7 @@ fn main()
 	let program_2 = self::render_gl::Program::from_res(&res, "shaders/triangle").unwrap();
 
 	// let mesh_42 = model::Mesh::from_file("assets/models/42.obj", program);
-	let mesh_teapot = model::Mesh::from_file("assets/models/teapot2.obj", program_2);
+	let mesh_teapot = model::Mesh::from_file("assets/models/teapot2.obj", program_2, "assets/textures/wall.jpg");
 
     unsafe
 	{
